@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 
     threadpool<http_conn> *pool = NULL;
     try {
-        pool = new threadpool<http_conn>();
+        pool = new threadpool<http_conn>;
     } catch (...) {
         return 1;
     }
