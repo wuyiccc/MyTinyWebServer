@@ -11,6 +11,7 @@
 template<typename T>
 class threadpool {
 public:
+    /*thread_number是线程池中线程的数量，max_requests是请求队列中最多允许的、等待处理的请求的数量*/
     threadpool(int thread_number = 8, int max_requests = 10000);
 
     ~threadpool();
@@ -60,9 +61,9 @@ threadpool<T>::threadpool(int thread_number, int max_requests) :
 
     // 创建thread_number个线程, 并设置为线程脱离
     for (int i = 0; i < thread_number; i++) {
-        printf("create the %dth thread\n", i);
-        if (pthread_create(m_threads + 1, NULL, worker, NULL) != 0) {
-            delete[]m_threads;
+        printf("create the %d th thread\n", i);
+        if (pthread_create(m_threads + i, NULL, worker, this) != 0) {
+            delete [] m_threads;
             throw std::exception();
         }
         if (pthread_detach(m_threads[i])) {
@@ -70,7 +71,6 @@ threadpool<T>::threadpool(int thread_number, int max_requests) :
             throw std::exception();
         }
     }
-
 }
 
 template<typename T>
@@ -108,7 +108,7 @@ void threadpool<T>::run() {
             m_queuelocker.unlock();
             continue;
         }
-        T* request = m_workqueue.front();
+        T *request = m_workqueue.front();
         m_workqueue.pop_front();
         m_queuelocker.unlock();
         if (!request) {
